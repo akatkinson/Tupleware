@@ -1,0 +1,25 @@
+Global setup:
+
+ Download and install Git
+  git config --global user.name "Alistair Atkinson"
+  git config --global user.email alatkins@gmail.com
+  Add your public key
+        
+
+Next steps:
+
+  mkdir Tupleware
+  cd Tupleware
+  git init
+  touch README
+  git add README
+  git commit -m 'first commit'
+  git remote add origin git@github.com:akatkinson/Tupleware.git
+  git push origin master
+      
+
+Existing Git Repo?
+
+  cd existing_git_repo
+  git remote add origin git@github.com:akatkinson/Tupleware.git
+  git push origin master

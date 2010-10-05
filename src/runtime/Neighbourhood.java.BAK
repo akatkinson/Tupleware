@@ -1,0 +1,69 @@
+/**
+ *  Neighbourhood.java
+ *
+ *  Author:   Alistair Atkinson (alatkins@utas.edu.au)
+ *  Created:  10/9/2005
+ *  Modified: 31/10/2006
+ *
+ *  Description: Maps a Scope to associated IP addresses.
+ */
+
+package runtime;
+
+import scope.*;
+import space.*;
+import java.util.*;
+import java.net.*;
+
+public class Neighbourhood {
+    protected enum NEIGHBOUR_LOC { NORTH, SOUTH, WEST, EAST, OTHER };
+    private Hashtable<NEIGHBOUR_LOC, Scope> associations;
+    private Scope localScope;
+
+    public Neighbourhood(Scope localScope) {
+        associations = new Hashtable<NEIGHBOUR_LOC, Scope>();
+        this.localScope = localScope;
+    }
+
+    public void associate(Scope scope, InetSocketAddress address) {
+        Vector<InetSocketAddress> v = associations.get(scope);
+        if(v == null) {
+            Vector<InetSocketAddress> newAssoc = new Vector<InetSocketAddress>();
+            newAssoc.addElement(address);
+            associations.put(scope, newAssoc);
+        } else {
+            if(!v.contains(address)) {
+                v.addElement(address);
+            }
+        }
+    }
+
+    public Vector<InetSocketAddress> getPrioritisedSpaces(Scope s) {
+        Enumeration<Scope> e = associations.keys();
+        Vector<InetSocketAddress> matches = new Vector<InetSocketAddress>();
+        Scope s2 = null;
+        while(e.hasMoreElements()) {
+            if((s2 = e.nextElement()).matches(s))
+                matches.addAll(associations.get(s2));
+        }
+
+        return matches;
+    }
+
+    public Vector<InetSocketAddress> getAddresses(Scope s) {
+        return associations.get(s);
+    }
+
+    public Scope getScope(InetSocketAddress address) {
+        // NOT YET IMPLEMENTED, OR NEEDED FOR THAT MATTER..
+        return null;
+    }
+
+    public Scope getLocalScope() { return localScope; }
+    public void setLocalScope(Scope s) { localScope = s; }
+
+    public boolean isAssociated(Scope name, InetSocketAddress address) {
+        Vector<InetSocketAddress> v = associations.get(name);
+        return v.contains(address);
+    }
+}

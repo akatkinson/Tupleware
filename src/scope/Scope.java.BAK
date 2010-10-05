@@ -1,0 +1,156 @@
+/**
+ *  Scope.java
+ *
+ *  Author:   Alistair Atkinson (alatkins@utas.edu.au)
+ *  Created:  2/8/2005
+ *  Modified: 30/8/2005
+ */
+
+package scope;
+
+import java.util.*;
+
+public class Scope {
+    public  static final String DEFAULT_SCOPE = " ";
+    private static final String NAME_SEPERATOR = ":";
+
+    private Vector<Vector<String>> names;
+
+    public Scope(String name, Object obj) {
+        names = new Vector<String>();
+        this.names.addElement(makeScope(name, obj));
+    }
+
+    public Scope(Vector<String> names, Object obj) {
+        this.names = names;
+        // add extra info to names
+    }
+
+    public Scope(Object obj) {
+        names = new Vector<String>();
+        this.names.addElement(makeScope(DEFAULT_SCOPE, obj));
+    }
+
+    /* Copy constructor */
+    public Scope(Scope s) {
+        names = new Vector<String>();
+
+        Iterator<String> it = s.iterator();
+        while(it.hasNext()) {
+            names.addElement(new String(it.next()));
+        }
+    }
+
+    public Iterator<String> iterator() {
+        return names.iterator();
+    }
+
+    public Vector<String> getNames() {
+        return names;
+    }
+
+    public boolean matches(Scope s) {
+        Iterator<String> it0 = this.iterator();
+
+        while(it0.hasNext()) {
+            Iterator<String> it1 = s.iterator();
+            String elem = it0.next();
+
+            while(it1.hasNext()) {
+                if(elem.equals(it1.next()))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /* Removes any duplicate names that may be in a scope */
+    private void removeDuplicates(Vector<String> names) {
+        for(int i = 0; i <= names.size(); i++) {
+            String name = names.elementAt(i);
+
+            for(int x = i+1; x <= names.size(); x++) {
+                if(name.equals(names.elementAt(x)))
+                    names.removeElementAt(x);
+            }
+        }
+    }
+
+     /*******************
+     *                  *
+     *  Static methods  *
+     *                  *
+     *******************/
+
+    /* This *should* generate a unique scope name */
+    private static String makeScope(String name, Object owner) {
+        if(owner == null)
+            owner = new Object();
+
+        return (name + NAME_SEPERATOR + owner.toString() + String.valueOf(System.nanoTime()));
+    }
+
+    public static boolean matches(Scope s1, Scope s2) {
+        return s1.matches(s2);
+    }
+
+    /*
+     *  union(A, B) = A U B
+     *
+     *  Eg.  union([a], [b])       => [a, b]
+     *       union([a, b], [b, c]) => [a, b, c]
+     *       union([ab], [bc])     => [ab, bc]
+     */
+    public static Scope union(Scope s1, Scope s2) {
+        Vector<String> names = new Vector<String>();
+        names.addAll(s1.getNames());
+        names.addAll(s2.getNames());
+
+        return new Scope(names, new Object());
+    }
+
+    /*
+     *  complement(A, B) = A - B
+     *
+     *  Eg.  complement([a, b], [b, c]) => [a]
+     *       complement([ab], [bc])     => [ab]
+     */
+    public static Scope complement(Scope s1, Scope s2) {
+        Vector<String> names = new Vector<String>(s1.getNames());
+        Iterator<String> it = s2.iterator();
+
+        while(it.hasNext()) {
+            int i = names.indexOf(it.next());
+
+            if(i >= 0) {
+                names.remove(i);
+            }
+        }
+
+        return new Scope(names, new Object());
+    }
+
+    /*
+     *  combine(A, B) = { x U y | (x, y) <- A x B }
+     *
+     *  Eg.  combine([a], [b])       => [ab]
+     *       combine([a, b], [b, c]) => [ab, ac, b, bc]
+     *       combine([ab], [bc])     => [abc]
+     */
+    public static Scope combine(Scope s1, Scope s2) {
+        Vector<String> names = new Vector<String>();
+
+        return new Scope(names, new Object());
+    }
+
+    /*
+     *  mysteryOp(A, B) = { x - y | (x, y) <- A x B }
+     *
+     *  Eg.  mysteryOp([ab, ac], [a])    => [b, c]
+     *       mysteryOp([ab, ac], [b, c]) => [a, ab, ac]
+     */
+    public static Scope mysteryOp(Scope s1, Scope s2) {
+        return null;
+    }
+}
